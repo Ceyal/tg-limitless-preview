@@ -1,0 +1,285 @@
+/**
+ * Client UX acceptance patch — layout hierarchy only (no audio/storage semantics).
+ */
+
+:root {
+  --tg-ux-studio-max: 1180px;
+  --tg-ux-pad: 16px;
+}
+
+.container {
+  max-width: min(1400px, 96vw);
+}
+
+.tg-limitless-prototype-banner.tg-ux-compact-banner {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.tg-limitless-prototype-banner.tg-ux-compact-banner strong {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.tg-ux-banner-sub {
+  display: block;
+  color: var(--tg-v3-text-muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+/* Hide harness blocks until ux-layout moves them to diagnostics */
+.tg-studio-primary > .tg-limitless-cap-panel,
+.tg-studio-primary > .tg-limitless-webkit-panel,
+.tg-studio-primary > .tg-limitless-first-run-wrap,
+.tg-studio-primary > .tg-limitless-perf-panel,
+.tg-studio-primary > .tg-limitless-storage-panel,
+.tg-studio-primary > .tg-limitless-opfs-panel,
+.tg-studio-primary > .tg-limitless-presets-panel,
+.tg-studio-primary > .tg-limitless-session-panel,
+.tg-studio-primary > .tg-limitless-audit-panel {
+  display: none !important;
+}
+
+.tg-studio-primary {
+  margin: 0 0 20px;
+  padding: 0;
+  max-width: var(--tg-ux-studio-max);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.tg-studio-trust-strip {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  font-size: 9px;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  color: var(--tg-v3-text-muted);
+  border-left: 3px solid var(--tg-v3-accent-soft);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 0 4px 4px 0;
+}
+
+.tg-studio-transport {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  background: linear-gradient(145deg, var(--tg-v3-panel-0) 0%, var(--tg-v3-panel-1) 100%);
+  border: 1px solid var(--tg-v3-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
+}
+
+.tg-studio-transport-label {
+  flex: 1 1 100%;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tg-v3-accent);
+  margin-bottom: 2px;
+}
+
+.tg-studio-transport button {
+  flex: 1 1 auto;
+  min-width: 7rem;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid var(--tg-v3-border);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--tg-v3-text-main);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tg-studio-transport button.tg-studio-transport-primary {
+  border-color: var(--tg-v3-accent);
+  background: var(--tg-v3-accent-dim);
+  color: var(--tg-v3-text-main);
+  font-weight: 600;
+}
+
+.tg-studio-transport button:hover {
+  border-color: var(--tg-v3-accent-soft);
+}
+
+.tg-studio-primary .dd-home {
+  margin-bottom: 14px;
+}
+
+.tg-studio-primary .mode-bar {
+  margin-bottom: 10px;
+}
+
+.tg-studio-primary .seq-actions {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.tg-studio-primary .hero-visualizer {
+  margin-bottom: 14px;
+}
+
+.tg-studio-primary .hero-visualizer .visualizer-wrap {
+  min-height: 220px;
+  max-height: min(42vh, 380px);
+}
+
+.tg-studio-export-compact {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.tg-studio-export-compact .tg-export-hdr {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tg-v3-accent);
+  margin-bottom: 8px;
+}
+
+.tg-studio-export-compact #tg_tech_export_truth_diag_pre {
+  max-height: 72px;
+}
+
+.tg-immersive-view-bar.tg-ux-view-compact {
+  margin-bottom: 12px;
+  padding: 10px 12px 12px;
+}
+
+.tg-immersive-view-bar.tg-ux-view-compact .tg-view-mode-disclaimer {
+  font-size: 8px;
+  max-height: 2.8em;
+  overflow: hidden;
+}
+
+.tg-immersive-quicknav.tg-ux-quicknav {
+  margin-bottom: 10px;
+}
+
+.tg-immersive-quicknav.tg-ux-quicknav button[data-tg-scroll='tgDiagnosticsRegion'] {
+  border-color: var(--tg-v3-accent-soft);
+  color: var(--tg-v3-text-soft);
+}
+
+.tg-diagnostics-region {
+  margin: 28px 0 20px;
+  max-width: 100%;
+}
+
+.tg-diagnostics-details {
+  border: 1px dashed var(--tg-v3-border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0;
+}
+
+.tg-diagnostics-details > summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tg-v3-accent);
+  list-style: none;
+  user-select: none;
+}
+
+.tg-diagnostics-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tg-diagnostics-details > summary::before {
+  content: '▸ ';
+  color: var(--tg-v3-accent-soft);
+}
+
+.tg-diagnostics-details[open] > summary::before {
+  content: '▾ ';
+}
+
+.tg-diagnostics-inner {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.tg-diagnostics-inner .tg-limitless-cap-panel,
+.tg-diagnostics-inner .tg-limitless-webkit-panel,
+.tg-diagnostics-inner .tg-limitless-perf-panel,
+.tg-diagnostics-inner .tg-limitless-storage-panel,
+.tg-diagnostics-inner .tg-limitless-opfs-panel,
+.tg-diagnostics-inner .tg-limitless-presets-panel,
+.tg-diagnostics-inner .tg-limitless-session-panel,
+.tg-diagnostics-inner .tg-limitless-audit-panel,
+.tg-diagnostics-inner .tg-limitless-export-truth-panel,
+.tg-diagnostics-inner .tg-limitless-first-run-wrap {
+  margin-top: 12px;
+}
+
+.tg-titlebar {
+  margin-bottom: 12px;
+}
+
+@media (min-width: 1200px) {
+  .tg-studio-primary .hero-visualizer .visualizer-wrap {
+    min-height: 280px;
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tg-studio-transport button {
+    min-width: calc(50% - 6px);
+  }
+
+  .tg-studio-primary .hero-visualizer .visualizer-wrap {
+    min-height: 180px;
+    max-height: 36vh;
+  }
+}
+
+@media (max-width: 844px) and (orientation: landscape) {
+  .tg-studio-primary .hero-visualizer .visualizer-wrap {
+    min-height: 140px;
+    max-height: 34vh;
+  }
+}
+
+/* 2027 tech closure — bounded a11y */
+.modal-backdrop .modal button:focus-visible,
+.modal-backdrop .modal input:focus-visible,
+.modal-backdrop .modal select:focus-visible,
+.modal-backdrop .modal textarea:focus-visible,
+#playBtn:focus-visible,
+.tg-studio-transport button:focus-visible {
+  outline: 2px solid var(--tg-v3-accent, #c9a068);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

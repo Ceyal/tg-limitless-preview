@@ -1,0 +1,10 @@
+{
+  "name": "TG Integrated Technology Candidate (experimental)",
+  "short_name": "TG Integrated",
+  "description": "Isolated integrated candidate-only PWA manifest — not active product",
+  "start_url": "./index_2027_integrated_technology_candidate.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#060807",
+  "theme_color": "#c9a068"
+}

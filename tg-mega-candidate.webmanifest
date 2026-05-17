@@ -1,0 +1,11 @@
+{
+  "name": "TG Mega Tech Candidate (experimental)",
+  "short_name": "TG Mega Candidate",
+  "description": "Candidate-only prototype — not production · Service Worker requires explicit user click",
+  "start_url": "./index_2027_mega_tech_candidate.html",
+  "display": "standalone",
+  "background_color": "#060807",
+  "theme_color": "#c9a068",
+  "lang": "en",
+  "icons": []
+}
