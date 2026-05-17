@@ -9,7 +9,24 @@
   "assetAuditUpdatedAt": "2026-05-17T18:00:00",
   "githubPagesPrimaryReady": true,
   "githubPagesReferenceComplete": true,
-  "githubPagesSelfContainedNote": "All local references in index.html, module graph, fetch probes, and SW cache shells resolve within the preview repo.",
+  "githubPagesSelfContainedNote": "All local references in daily-driver/tech-diagnostics, module graph, fetch probes, and SW cache shells resolve within the preview repo.",
+  "previewPaths": {
+    "landing": "/index.html",
+    "dailyDriver": "/daily-driver.html",
+    "techDiagnostics": "/tech-diagnostics.html",
+    "integratedCandidateProbe": "/index_2027_integrated_technology_candidate.html"
+  },
+  "liveUrls": {
+    "landing": "https://ceyal.github.io/tg-limitless-preview/",
+    "dailyDriver": "https://ceyal.github.io/tg-limitless-preview/daily-driver.html",
+    "techDiagnostics": "https://ceyal.github.io/tg-limitless-preview/tech-diagnostics.html"
+  },
+  "automation": {
+    "playwright": "tests/preview-live-smoke.spec.js",
+    "githubActions": ".github/workflows/preview-qa.yml",
+    "manualQa": "manual-qa/",
+    "promotionPacket": "TG_LIMITLESS_2027_PROMOTION_DECISION_PACKET.md"
+  },
   "optionalProbeHtml": {
     "index_2027_mega_tech_candidate.html": "7AC5389A4CCA12436C1A2A2189F3469DD927BC401FDA1EFBC357631FD936B125",
     "index_2027_wav_live_tap_candidate.html": "982AC64307B3DAB2A3E4E7D0173743F16FAECD91C23E44379BFAB171F3240ACF",

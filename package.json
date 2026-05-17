@@ -1,0 +1,15 @@
+{
+  "name": "tg-limitless-preview",
+  "version": "1.1.0",
+  "private": true,
+  "description": "TG Limitless GitHub Pages preview — QA tooling only",
+  "scripts": {
+    "qa:preview": "playwright test tests/preview-live-smoke.spec.js",
+    "qa:links": "node scripts/qa-links.mjs",
+    "qa:claims": "node scripts/qa-claims.mjs",
+    "qa:all": "npm run qa:claims && npm run qa:links && npm run qa:preview"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}

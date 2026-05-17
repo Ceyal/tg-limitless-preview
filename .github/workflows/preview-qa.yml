@@ -1,0 +1,62 @@
+name: Preview QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  preview-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+        continue-on-error: true
+
+      - name: Forbidden claims grep
+        run: npm run qa:claims
+
+      - name: Link/static asset check
+        run: npm run qa:links
+
+      - name: Verify key preview files exist
+        run: |
+          test -f index.html
+          test -f daily-driver.html
+          test -f tech-diagnostics.html
+          test -f PREVIEW_QA_REPORT.md
+          test -f manual-qa/SAFARI_MACOS_IOS_REAL_DEVICE_QA_PACKAGE.md
+
+      - name: Playwright smoke (local server)
+        run: npx playwright test tests/preview-live-smoke.spec.js --project=local-preview
+        continue-on-error: true
+
+      - name: Playwright smoke (live Pages)
+        run: npx playwright test tests/preview-live-smoke.spec.js --project=live-pages
+        env:
+          TG_PREVIEW_LIVE_URL: https://ceyal.github.io/tg-limitless-preview
+        continue-on-error: true
+
+      - name: Upload QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-qa-artifacts
+          path: |
+            qa-artifacts/
+            playwright-report/
+          if-no-files-found: ignore

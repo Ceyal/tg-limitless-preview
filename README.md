@@ -1,63 +1,58 @@
 # TG Limitless Preview
 
-This repo is a clean GitHub Pages preview package for the TG Limitless Integrated Technology Candidate.
+GitHub Pages preview for the TG Limitless Integrated Technology Candidate — **candidate-only**, not production.
 
-It is not the active product.
-It is not production.
-It is not perfect.
-It is not 2027/2033 achieved.
+**Live site:** https://ceyal.github.io/tg-limitless-preview/
 
-## Current Preview
+## Entry points
 
-- Candidate: `index_2027_integrated_technology_candidate.html`
+| Path | Purpose |
+|------|---------|
+| `/` | Clean landing — choose daily driver or diagnostics hub |
+| `/daily-driver.html` | Manual QA entry — studio first, diagnostics collapsed |
+| `/tech-diagnostics.html` | Full integrated technology / lane diagnostics |
+| `/index_2027_integrated_technology_candidate.html` | SHA probe alias (same bytes as diagnostics hub) |
+
+## Current candidate
+
 - SHA: `34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD`
 - Verdict: `YELLOW_LIMITLESS_2027_INTEGRATED_TECHNOLOGY_CANDIDATE_PARTIAL_ACCEPTED`
 
-## Asset Audit
+## Asset audit
 
-- Status: `PREVIEW_ASSETS_COMPLETE`
-- Primary page load (HTML + CSS + ES modules): **complete**
-- Optional lane SHA probe HTML (mega / WAV / AudioWorklet / marathon): **included** at repo root
-- Details: see `PREVIEW_ASSET_AUDIT.md`
-- GitHub Pages: **ready to push** — reference-complete preview package
+- Status: `PREVIEW_ASSETS_COMPLETE` — see `PREVIEW_ASSET_AUDIT.md`
+- QA report: `PREVIEW_QA_REPORT.md`
 
-## Truth Boundaries
+## Automation (preview repo only)
 
-Allowed:
+```bash
+npm install
+npx playwright install chromium
+npm run qa:all
+```
 
-- Integrated candidate preview
-- advanced lanes off-by-default / opt-in only
-- legacy engine and WebM export remain default
-- active TG product untouched
+Scripts: `qa:preview` · `qa:links` · `qa:claims` · `qa:all`  
+CI: `.github/workflows/preview-qa.yml` (no secrets)
 
-Forbidden:
+## Manual QA packages
 
-- production ready
-- perfect
-- 2027 achieved
-- 2033 achieved
-- Safari/iOS GREEN
-- AT GREEN
-- product WAV GREEN
-- AudioWorklet product-live
-- OPFS default-on
-- silent Service Worker
-- medical/healing/therapy/entrainment claims
+- `manual-qa/SAFARI_MACOS_IOS_REAL_DEVICE_QA_PACKAGE.md`
+- `manual-qa/REAL_MOBILE_PWA_QA_PACKAGE.md`
+- `manual-qa/AT_SCREEN_READER_MANUAL_QA_PACKAGE.md`
 
-## Remaining Manual Gates
+## Promotion decision
 
-- Safari/iOS real-device smoke
-- real mobile smoke
-- manual AT screen-reader QA
-- promotion decision packet
+- `TG_LIMITLESS_2027_PROMOTION_DECISION_PACKET.md` — decision support only, not a promotion
 
-## Update Procedure
+## Truth boundaries
 
-To update the preview:
+**Allowed:** integrated candidate preview; advanced lanes off-by-default; legacy engine + WebM default; active TG product untouched.
 
-1. Replace `index.html` with the newly accepted candidate.
-2. Copy the candidate into `candidates/`.
-3. Re-run asset audit: copy any newly referenced `src/`, `harnesses/`, favicon, manifest, or SW files (see `PREVIEW_ASSET_AUDIT.md`).
-4. Update `VERSION.json`.
-5. Replace `reports/latest/` with the latest 5 review files.
-6. Commit and push.
+**Forbidden:** production ready; perfect; 2027/2033 achieved; Safari/iOS GREEN; AT GREEN; product WAV GREEN; AudioWorklet product-live; OPFS default-on; silent Service Worker; medical/healing/therapy/entrainment claims.
+
+## Update procedure
+
+1. Update `tech-diagnostics.html` from newly accepted candidate (and sync probe alias).
+2. Re-copy `daily-driver.html` base from diagnostics; re-apply `preview/` CSS/JS hooks.
+3. Refresh `src/`, `harnesses/`, manifests, SW files per `PREVIEW_ASSET_AUDIT.md`.
+4. Update `VERSION.json`, `reports/latest/`, run `npm run qa:all`, commit, push.

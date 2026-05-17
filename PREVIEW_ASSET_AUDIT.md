@@ -2,7 +2,9 @@
 
 **Generated:** 2026-05-17 (updated — optional probe HTML patch)  
 **Preview root:** `tg-limitless-preview-repo/`  
-**Entry:** `index.html` (Integrated Technology Candidate v1.1)
+**Landing:** `index.html` (preview chooser)  
+**Daily driver:** `daily-driver.html` (integrated candidate + collapsed diagnostics)  
+**Diagnostics hub:** `tech-diagnostics.html` (full Integrated Technology Candidate v1.1)
 
 ## Verdict
 

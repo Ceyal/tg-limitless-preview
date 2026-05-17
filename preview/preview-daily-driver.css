@@ -1,0 +1,70 @@
+/* Preview-only — daily driver layout. Does not change product audio/export/storage. */
+
+body.tg-preview-daily-driver {
+  scroll-behavior: smooth;
+}
+
+body.tg-preview-daily-driver > .container {
+  display: flex;
+  flex-direction: column;
+}
+
+body.tg-preview-daily-driver .tg-preview-page-bar {
+  order: -20;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line, #3a342c);
+  border-radius: 6px;
+  background: rgba(19, 18, 16, 0.92);
+  font-size: 11px;
+}
+
+body.tg-preview-daily-driver .tg-preview-page-bar a {
+  color: var(--tg-v3-accent, #c9a068);
+  margin-right: 12px;
+}
+
+body.tg-preview-daily-driver .tg-titlebar {
+  order: 0;
+}
+
+body.tg-preview-daily-driver #tgStudioPrimary {
+  order: 1;
+}
+
+body.tg-preview-daily-driver .tg-immersive-quicknav {
+  order: 2;
+}
+
+body.tg-preview-daily-driver .tg-immersive-view-bar {
+  order: 3;
+}
+
+body.tg-preview-daily-driver details.tg-preview-diag-fold {
+  order: 90;
+  margin: 8px 0;
+  border: 1px solid var(--line, #3a342c);
+  border-radius: 6px;
+  padding: 0 10px 8px;
+  background: rgba(19, 18, 16, 0.55);
+}
+
+body.tg-preview-daily-driver details.tg-preview-diag-fold > summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--tg-v3-accent, #c9a068);
+  padding: 10px 0 6px;
+  list-style: disclosure-closed;
+}
+
+body.tg-preview-daily-driver details.tg-preview-diag-fold[open] > summary {
+  margin-bottom: 8px;
+}
+
+body.tg-preview-daily-driver .tg-limitless-prototype-banner.tg-preview-diag-fold > summary {
+  font-weight: 600;
+}
+
+body.tg-preview-daily-driver .hero-visualizer {
+  order: 4;
+}
