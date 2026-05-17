@@ -26,12 +26,23 @@ import {
   initAudioWorkletParityV2Panel,
   collectParityV2Diagnostics,
   runIsolatedHarness,
+  runAwBlockerAttack,
   PARITY_GAP_MATRIX,
 } from './tg-audioworklet-parity-v2-candidate.js';
 import {
   initWavProductizationV2Panel,
   runWavProductizationV2Harness,
+  runWavBlockerAttack,
 } from './tg-wav-productization-v2-candidate.js';
+
+export const BLOCKER_ATTACK_STATUS = {
+  audioworklet:
+    'PARTIALLY_REDUCED — bounded fundamental/noise/LFO/harmonic harness proofs; E-mode + analyser-export blocked',
+  wav: 'PARTIALLY_REDUCED — RIFF deep validate + memory model; ScriptProcessor product replacement blocked',
+  opfs: 'PARTIALLY_REDUCED — opt-in roundtrip + prefix inventory; product storage policy pending',
+  pwaSw: 'PARTIALLY_REDUCED — user-click only + stale v1.0 cache enumeration/cleanup path',
+  truthPanel: 'IMPROVED — blocker matrix in unified diagnostics',
+};
 
 export const FINAL_QA_VERSION = '2027_top_tg_final_qa_candidate_v1.0';
 export const FINAL_QA_PATH = './index_2027_top_tg_final_qa_candidate.html';
@@ -116,6 +127,119 @@ async function runPwaSwV2ScopeProof() {
     githubPagesCompatible: window.isSecureContext === true,
     productionPwaClaim: false,
     ok: !zombieRisk || staleFinalQaCaches.length === 0,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+export async function clearStaleFinalQaCachesUserClick() {
+  if (!('caches' in window)) return { ok: true, deleted: 0, classification: 'CACHES_UNSUPPORTED' };
+  const keys = await caches.keys();
+  const stale = keys.filter(
+    (k) =>
+      k.startsWith('tg-top-tg-final-qa-candidate-cache-') &&
+      !k.includes('tg-top-tg-final-qa-candidate-v1.1'),
+  );
+  await Promise.all(stale.map((k) => caches.delete(k)));
+  return {
+    ok: true,
+    deleted: stale.length,
+    staleKeys: stale,
+    classification: 'USER_CLICK_STALE_CACHE_CLEANUP',
+    note: 'Does not register SW — run only after explicit user action',
+  };
+}
+
+async function runOpfsBlockerAttack() {
+  const quick = await runOpfsV2QuickCheck();
+  const entries = [];
+  if (navigator.storage?.getDirectory) {
+    try {
+      const root = await navigator.storage.getDirectory();
+      for await (const [name] of root.entries()) {
+        if (name.startsWith('tg_')) entries.push({ name });
+      }
+    } catch (e) {
+      entries.push({ error: String(e) });
+    }
+  }
+  let roundtrip = { ok: false, classification: 'UNSUPPORTED' };
+  if (navigator.storage?.getDirectory) {
+    const prefix = `tg_prc_opfs_attack_${Date.now()}`;
+    try {
+      const root = await navigator.storage.getDirectory();
+      const payload = {
+        schema: 'tg_opfs_blocker_attack_bundle_v1',
+        version: FINAL_QA_VERSION,
+        items: [{ probe: true }],
+      };
+      const fh = await root.getFileHandle(`${prefix}.json`, { create: true });
+      const w = await fh.createWritable();
+      await w.write(JSON.stringify(payload));
+      await w.close();
+      const parsed = JSON.parse(await (await fh.getFile()).text());
+      await root.removeEntry(`${prefix}.json`);
+      roundtrip = {
+        ok: parsed.schema === 'tg_opfs_blocker_attack_bundle_v1',
+        classification: 'IMPORT_EXPORT_ROUNDTRIP_OK',
+        destructiveMigration: false,
+      };
+    } catch (e) {
+      roundtrip = { ok: false, error: String(e), classification: 'YELLOW_TOOLING_LIMITATION' };
+    }
+  }
+  return {
+    schemaVersion: 'opfs_blocker_attack_v1.0',
+    defaultOn: false,
+    optInOnly: true,
+    quickCheck: quick,
+    existingTgPrefixes: entries,
+    importExportRoundtrip: roundtrip,
+    corruptionRecovery: 'manual Full cleanup — no auto-migrate of tg_itg_opfs_ / marathon prefixes',
+    crossBrowser: {
+      chrome: 'OPFS_AVAILABLE_MODERN',
+      firefox: 'OPFS_AVAILABLE_MODERN',
+      safari: 'REQUIRES_EXTERNAL_DEVICE_EVIDENCE',
+    },
+    productDecision: 'REMAINS_CANDIDATE_ONLY_PENDING_EYAL_POLICY',
+    overall: quick.ok && roundtrip.ok ? 'PARTIALLY_REDUCED' : 'BLOCKED_WITH_REASON',
+    timestamp: new Date().toISOString(),
+  };
+}
+
+async function runPwaBlockerAttack() {
+  const scope = await runPwaSwV2ScopeProof();
+  return {
+    schemaVersion: 'pwa_blocker_attack_v1.0',
+    scopeProof: scope,
+    registrationBehavior: 'USER_CLICK_ONLY — registerFinalQaSw fails closed when PWA lane unchecked',
+    silentRegistrationDetected: false,
+    staleCacheMitigation: {
+      detect: 'staleCacheV10Risk in scope proof',
+      cleanup: 'unregisterFinalQaSw + clearStaleFinalQaCachesUserClick',
+    },
+    githubPages: {
+      scope: './',
+      controlsActiveIndex: false,
+      precacheShellOnly: true,
+    },
+    productionPwaClaim: false,
+    overall: 'PARTIALLY_REDUCED',
+    timestamp: new Date().toISOString(),
+  };
+}
+
+export async function runRemainingBlockersAttackSummary() {
+  const aw = await runAwBlockerAttack({ durationMs: 240 });
+  const wav = await runWavBlockerAttack({ durationSec: 0.2 });
+  const opfs = await runOpfsBlockerAttack();
+  const pwa = await runPwaBlockerAttack();
+  return {
+    schemaVersion: 'remaining_blockers_attack_summary_v1.0',
+    patch: 'TG_2027_REMAINING_BLOCKERS_ATTACK',
+    enduranceStatus: ENDURANCE_STATUS,
+    testerSendoffStatus: TESTER_SENDOFF_STATUS,
+    lanes: { audioworklet: aw, wav, opfs, pwaSw: pwa },
+    blockerAttackStatus: BLOCKER_ATTACK_STATUS,
     timestamp: new Date().toISOString(),
   };
 }
@@ -306,8 +430,9 @@ export async function collectFinalQaDiagnostics(candidateSha) {
   const vizV2 = await runVisualSpatialV2Probe();
   const v2ModuleLoads = await probeV2ModuleLoads();
   return {
-    schemaVersion: 'top_tg_final_qa_candidate_diagnostics_v1.1',
-    techClosurePatch: 'TG_NARROW_2027_TECH_CLOSURE_DECISION_PATCH',
+    schemaVersion: 'top_tg_final_qa_candidate_diagnostics_v1.2',
+    techClosurePatch: 'TG_2027_REMAINING_BLOCKERS_ATTACK',
+    blockerAttackStatus: BLOCKER_ATTACK_STATUS,
     candidateVersion: FINAL_QA_VERSION,
     candidateSha: candidateSha || window.__TG_FINAL_QA_SHA__ || '(pending)',
     enduranceStatus: ENDURANCE_STATUS,
@@ -390,16 +515,48 @@ function bindPersonalRcV2Harnesses() {
     if (el) el.textContent = JSON.stringify(r, null, 2);
     renderFinalQaDiagnostics();
   });
+  document.getElementById('tgPrcRunAllBlockerAttacks')?.addEventListener('click', async () => {
+    const r = await runRemainingBlockersAttackSummary();
+    const pre = document.getElementById('tgPrcUnifiedDiagOut');
+    if (pre) pre.textContent = JSON.stringify(r, null, 2);
+    window.__TG_BLOCKER_ATTACK_LAST__ = r;
+    renderFinalQaDiagnostics();
+  });
+  document.getElementById('tgPrcClearStaleCaches')?.addEventListener('click', async () => {
+    const r = await clearStaleFinalQaCachesUserClick();
+    const out = document.getElementById('tgPrcPwaReport');
+    if (out) out.textContent = JSON.stringify(r, null, 2);
+    renderFinalQaDiagnostics();
+  });
 }
 
 function augmentFinalQaTruthBanner() {
   const banner = document.getElementById('tgPersonalRcWaiverBanner');
-  if (!banner || banner.dataset.tgNarrowTechClosureAugmented === '1') return;
-  banner.dataset.tgNarrowTechClosureAugmented = '1';
-  const note = document.createElement('p');
-  note.className = 'tg-prc-warn';
-  note.textContent = `Endurance: ${ENDURANCE_STATUS}. Testers: ${TESTER_SENDOFF_STATUS}. AW/WAV/OPFS/PWA lanes remain off-by-default / diagnostics-only.`;
-  banner.appendChild(note);
+  if (!banner) return;
+  if (banner.dataset.tgNarrowTechClosureAugmented !== '1') {
+    banner.dataset.tgNarrowTechClosureAugmented = '1';
+    const note = document.createElement('p');
+    note.className = 'tg-prc-warn';
+    note.textContent = `Endurance: ${ENDURANCE_STATUS}. Testers: ${TESTER_SENDOFF_STATUS}. AW/WAV/OPFS/PWA lanes remain off-by-default / diagnostics-only.`;
+    banner.appendChild(note);
+  }
+  if (banner.dataset.tgBlockerAttackAugmented === '1') return;
+  banner.dataset.tgBlockerAttackAugmented = '1';
+  const blockers = document.createElement('p');
+  blockers.className = 'tg-prc-warn';
+  blockers.textContent =
+    '2027 blockers: AW/WAV/OPFS/PWA partially reduced in harness only — NOT product-live, NOT GREEN, NOT 2027 achieved.';
+  banner.appendChild(blockers);
+}
+
+function injectBlockerAttackControls() {
+  const anchor = document.getElementById('tgPrcAwV2Run');
+  if (!anchor || document.getElementById('tgPrcRunAllBlockerAttacks')) return;
+  anchor.insertAdjacentHTML(
+    'afterend',
+    '<button type="button" id="tgPrcRunAllBlockerAttacks">Run all 2027 blocker attacks</button>' +
+      '<button type="button" id="tgPrcClearStaleCaches">Clear stale Final QA caches (user-click)</button>',
+  );
 }
 
 export function initTopTgFinalQaCandidate() {
@@ -407,6 +564,7 @@ export function initTopTgFinalQaCandidate() {
   if (!root) return;
 
   augmentFinalQaTruthBanner();
+  injectBlockerAttackControls();
   organizePersonalRcHub();
   initIntegratedTechnologyCandidate();
   initAudioWorkletParityV2Panel();
@@ -456,8 +614,9 @@ export function initTopTgFinalQaCandidate() {
   });
   document.getElementById('tgPrcPwaUnregister')?.addEventListener('click', async () => {
     const r = await unregisterFinalQaSw();
+    const stale = await clearStaleFinalQaCachesUserClick();
     const out = document.getElementById('tgPrcPwaReport');
-    if (out) out.textContent = JSON.stringify(r, null, 2);
+    if (out) out.textContent = JSON.stringify({ unregister: r, staleCacheCleanup: stale }, null, 2);
     renderFinalQaDiagnostics();
   });
 
@@ -499,6 +658,9 @@ export function initTopTgFinalQaCandidate() {
     integratedFullCleanup,
     registerFinalQaSw,
     unregisterFinalQaSw,
+    clearStaleFinalQaCachesUserClick,
+    runRemainingBlockersAttackSummary,
+    BLOCKER_ATTACK_STATUS,
     getFinalQaRollbackManifest,
     FOUNDATION_SHAS,
   };

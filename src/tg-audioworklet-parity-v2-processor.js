@@ -15,6 +15,8 @@ class TgParityV2ToneProcessor extends AudioWorkletProcessor {
     this.harmonic2Mix = 0;
     this.lfoRate = 0;
     this.lfoDepth = 0;
+    /** Harness-only white noise mix (0 = off). Not legacy noise graph parity. */
+    this.noiseMix = 0;
     this.port.onmessage = (ev) => {
       const d = ev.data || {};
       if (typeof d.freqL === 'number') this.freqL = d.freqL;
@@ -24,6 +26,7 @@ class TgParityV2ToneProcessor extends AudioWorkletProcessor {
       if (typeof d.harmonic2Mix === 'number') this.harmonic2Mix = Math.max(0, Math.min(1, d.harmonic2Mix));
       if (typeof d.lfoRate === 'number') this.lfoRate = d.lfoRate;
       if (typeof d.lfoDepth === 'number') this.lfoDepth = Math.max(0, Math.min(1, d.lfoDepth));
+      if (typeof d.noiseMix === 'number') this.noiseMix = Math.max(0, Math.min(0.25, d.noiseMix));
     };
   }
 
@@ -42,8 +45,9 @@ class TgParityV2ToneProcessor extends AudioWorkletProcessor {
       const sR = Math.sin(this.phaseR);
       const h2L = Math.sin(this.phaseL * 2) * this.harmonic2Mix;
       const h2R = Math.sin(this.phaseR * 2) * this.harmonic2Mix;
-      outL[i] = (sL + h2L) * this.gainL * lfo;
-      outR[i] = (sR + h2R) * this.gainR * lfo;
+      const noise = this.noiseMix > 0 ? (Math.random() * 2 - 1) * this.noiseMix : 0;
+      outL[i] = (sL + h2L) * this.gainL * lfo + noise;
+      outR[i] = (sR + h2R) * this.gainR * lfo + noise;
       this.phaseL += incL;
       this.phaseR += incR;
       this.lfoPhase += lfoInc;

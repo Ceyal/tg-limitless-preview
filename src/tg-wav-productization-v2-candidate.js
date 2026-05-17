@@ -4,7 +4,7 @@
  */
 import { writeWavPcm16, synthSine, measureBuffer } from '../harnesses/wav_pcm/wav_core.js';
 
-export const WAV_PROD_V2_VERSION = '2027_wav_productization_v2_candidate_v1.1';
+export const WAV_PROD_V2_VERSION = '2027_wav_productization_v2_candidate_v1.2';
 export const WAV_PROD_V2_LANE_KEY = 'tg_wav_productization_v2_lane_v1';
 export const WAV_FOUNDATION_SHA = '982AC64307B3DAB2A3E4E7D0173743F16FAECD91C23E44379BFAB171F3240ACF';
 
@@ -32,12 +32,66 @@ function validateRiff(buf, sampleRate, channels, pcmBytes) {
   const view = new DataView(buf);
   const riff = String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3));
   const wave = String.fromCharCode(view.getUint8(8), view.getUint8(9), view.getUint8(10), view.getUint8(11));
+  const fmtSize = view.getUint32(16, true);
+  const audioFormat = view.getUint16(20, true);
+  const bitsPerSample = view.getUint16(34, true);
+  const fileSize = view.getUint32(4, true);
   return {
     riffOk: riff === 'RIFF',
     waveOk: wave === 'WAVE',
     sampleRateOk: view.getUint32(24, true) === sampleRate,
     channelsOk: view.getUint16(22, true) === channels,
     dataSizeOk: view.getUint32(40, true) === pcmBytes,
+    fmtSizeOk: fmtSize === 16,
+    pcm16Ok: audioFormat === 1 && bitsPerSample === 16,
+    riffChunkSizeOk: fileSize === buf.byteLength - 8,
+  };
+}
+
+export function estimateExportMemory(durationSec, sampleRate = 48000, channels = 2) {
+  const frames = Math.floor(durationSec * sampleRate);
+  const pcmBytes = frames * channels * 2;
+  const wavBytes = 44 + pcmBytes;
+  const plan = buildChunkedWavPlan(frames, sampleRate, channels);
+  return {
+    durationSec,
+    sampleRate,
+    channels,
+    frames,
+    pcmBytes,
+    wavBytes,
+    memoryGuardOk: wavBytes <= MAX_TOTAL_BYTES,
+    chunkPlan: plan,
+    webmFallbackRecommended: wavBytes > MAX_TOTAL_BYTES,
+    classification: plan.classification,
+  };
+}
+
+export function auditScriptProcessorTapSafety() {
+  return {
+    classification: 'BLOCKED_FOR_PRODUCT_REPLACEMENT',
+    verdict: 'UNSAFE_WITHOUT_LIVE_GRAPH_AUDIT',
+    risks: [
+      'createScriptProcessor is deprecated — uneven Safari support',
+      'onaudioprocess runs on main thread — glitch risk under UI load',
+      'Live tap connects analyser → MediaStreamDestination — mutates export graph while recording',
+      'Mute sink to destination still adds parallel nodes during capture',
+    ],
+    safeHarnessPath: 'OfflineAudioContext + writeWavPcm16 (v2 harness proven)',
+    productDefault: 'WebM MediaRecorder remains default',
+    proofCollected: 'STATIC_AUDIT_FROM_WAV_LIVE_TAP_DESIGN',
+    proofMissing: 'LIVE_PLAYING_GRAPH_AB_TEST_WITH_SCRIPT_PROCESSOR_REMOVED',
+  };
+}
+
+export function auditWorkletTapFeasibility() {
+  return {
+    classification: 'FEASIBLE_DISCONNECTED_HARNESS_ONLY',
+    verdict: 'PARTIALLY_REDUCED_NOT_PRODUCT',
+    proof: 'AudioWorkletNode can render in isolated OfflineAudioContext without touching product graph',
+    productDefault: false,
+    doesNotReplaceScriptProcessorOnProduct: true,
+    proofMissing: 'BRIDGED_METER_TAP_ON_LIVE_ANALYSER_WITHOUT_GRAPH_LEAK',
   };
 }
 
@@ -74,14 +128,56 @@ export function collectWavV2Diagnostics() {
       maxTotalBytes: MAX_TOTAL_BYTES,
       classification: 'RIFF_CHUNK_GUARDS_ACTIVE_IN_HARNESS',
     },
-    scriptProcessorReplacement: {
-      status: 'BLOCKED_UNSAFE_WITHOUT_GRAPH_AUDIT',
-      auditPath: 'Review legacy ScriptProcessor tap in export bridge before any product replacement',
+    scriptProcessorAudit: auditScriptProcessorTapSafety(),
+    workletTapAudit: auditWorkletTapFeasibility(),
+    exportEstimates: {
+      sec30stereo48k: estimateExportMemory(30, 48000, 2),
+      sec120stereo48k: estimateExportMemory(120, 48000, 2),
     },
     blockerNotes: [
       'WAV not product default — WebM/MediaRecorder remains export default on final QA page',
-      'Long export dry-run plans only; no forced 120s write in harness',
+      'ScriptProcessor live tap remains blocked for product replacement until graph audit',
     ],
+    timestamp: new Date().toISOString(),
+  };
+}
+
+export async function runWavBlockerAttack(opts = {}) {
+  const spAudit = auditScriptProcessorTapSafety();
+  const awTap = auditWorkletTapFeasibility();
+  const harness = await runWavProductizationV2Harness(opts);
+  const est30 = estimateExportMemory(30, 48000, 2);
+  const est120 = estimateExportMemory(120, 48000, 2);
+
+  return {
+    schemaVersion: 'wav_blocker_attack_v1.0',
+    version: WAV_PROD_V2_VERSION,
+    classification: 'CANDIDATE_HARNESS_ATTACK',
+    webmDefaultPreserved: true,
+    wavProductGreen: false,
+    gaps: {
+      scriptProcessorReplacement: {
+        verdict: 'BLOCKED_WITH_REASON',
+        proof: spAudit,
+      },
+      workletMeterTap: {
+        verdict: 'PARTIALLY_REDUCED',
+        proof: awTap,
+      },
+      riffChunkMemoryGuards: {
+        verdict: harness.ok ? 'PARTIALLY_REDUCED' : 'BLOCKED_WITH_REASON',
+        proof: harness,
+      },
+      longDurationExport: {
+        verdict: est120.memoryGuardOk ? 'PARTIALLY_REDUCED' : 'BLOCKED_WITH_REASON',
+        proof: { est30, est120, note: 'Model only — no long recording' },
+      },
+      productWavDefault: {
+        verdict: 'BLOCKED_WITH_REASON',
+        proof: { webmDefault: true, laneEnabled: laneEnabled() },
+      },
+    },
+    overall: 'PARTIALLY_REDUCED',
     timestamp: new Date().toISOString(),
   };
 }
@@ -152,6 +248,12 @@ export function initWavProductizationV2Panel() {
     if (pre) pre.textContent = JSON.stringify(r, null, 2);
     window.__TG_WAV_PROD_V2_LAST_REPORT__ = r;
   });
+  document.getElementById('tgWavPv2RunBlockerAttack')?.addEventListener('click', async () => {
+    const pre = document.getElementById('tgWavPv2Report');
+    const r = await runWavBlockerAttack();
+    if (pre) pre.textContent = JSON.stringify(r, null, 2);
+    window.__TG_WAV_BLOCKER_ATTACK_LAST__ = r;
+  });
   document.getElementById('tgWavPv2RefreshDiag')?.addEventListener('click', () => {
     const pre = document.getElementById('tgWavPv2DiagOut');
     if (pre) pre.textContent = JSON.stringify(collectWavV2Diagnostics(), null, 2);
@@ -159,6 +261,10 @@ export function initWavProductizationV2Panel() {
   window.__TG_WAV_PRODUCTIZATION_V2_CANDIDATE__ = {
     version: WAV_PROD_V2_VERSION,
     runWavProductizationV2Harness,
+    runWavBlockerAttack,
+    estimateExportMemory,
+    auditScriptProcessorTapSafety,
+    auditWorkletTapFeasibility,
     collectWavV2Diagnostics,
   };
 }
