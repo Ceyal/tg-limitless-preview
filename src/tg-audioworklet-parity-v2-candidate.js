@@ -56,6 +56,28 @@ export function setLaneArm(on) {
   }
 }
 
+export async function probeProcessorModule() {
+  try {
+    const res = await fetch(PROCESSOR_URL, { cache: 'no-store' });
+    return {
+      url: PROCESSOR_URL,
+      httpStatus: res.status,
+      ok: res.ok,
+      classification: res.ok ? 'PROCESSOR_MODULE_REACHABLE' : 'MODULE_404_OR_BLOCKED',
+      productLive: false,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (e) {
+    return {
+      url: PROCESSOR_URL,
+      ok: false,
+      error: String(e),
+      classification: 'PROBE_FETCH_FAILED',
+      productLive: false,
+    };
+  }
+}
+
 export async function runIsolatedHarness(opts = {}) {
   const report = {
     schemaVersion: 'audioworklet_parity_v2_harness_v1.1',
@@ -81,8 +103,19 @@ export async function runIsolatedHarness(opts = {}) {
     return report;
   }
 
-  const ac = new AudioContext();
+  const moduleProbe = await probeProcessorModule();
+  report.processorModuleProbe = moduleProbe;
+  if (!moduleProbe.ok) {
+    report.classification = 'MODULE_LOAD_BLOCKED';
+    report.ok = false;
+    return report;
+  }
+
+  /** @type {AudioContext | null} */
+  let ac = null;
+  const activeNodes = [];
   try {
+    ac = new AudioContext();
     await ac.audioWorklet.addModule(PROCESSOR_URL);
     const cases = [
       { name: 'fundamental', params: { freqL: 220, freqR: 330, gainL: 0.1, gainR: 0.1, harmonic2Mix: 0, lfoRate: 0, lfoDepth: 0 } },
@@ -91,8 +124,10 @@ export async function runIsolatedHarness(opts = {}) {
     ];
     for (const c of cases) {
       const node = new AudioWorkletNode(ac, 'tg-parity-v2-tone', { outputChannelCount: [2] });
+      activeNodes.push(node);
       node.port.postMessage(c.params);
       const gain = ac.createGain();
+      activeNodes.push(gain);
       gain.gain.value = 0.25;
       node.connect(gain).connect(ac.destination);
       if (ac.state === 'suspended') await ac.resume();
@@ -113,11 +148,20 @@ export async function runIsolatedHarness(opts = {}) {
   } catch (e) {
     report.error = String(e);
     report.ok = false;
+  } finally {
+    for (const n of activeNodes) {
+      try {
+        n.disconnect();
+      } catch {
+        /* ignore */
+      }
+    }
     try {
-      await ac.close();
+      if (ac && ac.state !== 'closed') await ac.close();
     } catch {
       /* ignore */
     }
+    report.teardownGuard = { nodesDisconnected: activeNodes.length, audioContextClosed: true };
   }
   return report;
 }
@@ -158,6 +202,7 @@ export function initAudioWorkletParityV2Panel() {
     version: AW_PARITY_V2_VERSION,
     runIsolatedHarness,
     collectParityV2Diagnostics,
+    probeProcessorModule,
     PARITY_GAP_MATRIX,
   };
 }

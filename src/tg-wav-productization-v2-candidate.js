@@ -62,6 +62,30 @@ export function buildChunkedWavPlan(totalFrames, sampleRate, channels) {
   };
 }
 
+export function collectWavV2Diagnostics() {
+  return {
+    version: WAV_PROD_V2_VERSION,
+    laneEnabled: laneEnabled(),
+    defaultOff: !laneEnabled(),
+    webmDefaultPreserved: true,
+    wavProductGreen: false,
+    memoryGuards: {
+      maxChunkFrames: MAX_CHUNK_FRAMES,
+      maxTotalBytes: MAX_TOTAL_BYTES,
+      classification: 'RIFF_CHUNK_GUARDS_ACTIVE_IN_HARNESS',
+    },
+    scriptProcessorReplacement: {
+      status: 'BLOCKED_UNSAFE_WITHOUT_GRAPH_AUDIT',
+      auditPath: 'Review legacy ScriptProcessor tap in export bridge before any product replacement',
+    },
+    blockerNotes: [
+      'WAV not product default — WebM/MediaRecorder remains export default on final QA page',
+      'Long export dry-run plans only; no forced 120s write in harness',
+    ],
+    timestamp: new Date().toISOString(),
+  };
+}
+
 export async function runWavProductizationV2Harness(opts = {}) {
   const sr = opts.sampleRate || 48000;
   const duration = opts.durationSec || 0.5;
@@ -128,5 +152,13 @@ export function initWavProductizationV2Panel() {
     if (pre) pre.textContent = JSON.stringify(r, null, 2);
     window.__TG_WAV_PROD_V2_LAST_REPORT__ = r;
   });
-  window.__TG_WAV_PRODUCTIZATION_V2_CANDIDATE__ = { version: WAV_PROD_V2_VERSION, runWavProductizationV2Harness };
+  document.getElementById('tgWavPv2RefreshDiag')?.addEventListener('click', () => {
+    const pre = document.getElementById('tgWavPv2DiagOut');
+    if (pre) pre.textContent = JSON.stringify(collectWavV2Diagnostics(), null, 2);
+  });
+  window.__TG_WAV_PRODUCTIZATION_V2_CANDIDATE__ = {
+    version: WAV_PROD_V2_VERSION,
+    runWavProductizationV2Harness,
+    collectWavV2Diagnostics,
+  };
 }

@@ -38,10 +38,19 @@ export const FINAL_QA_PATH = './index_2027_top_tg_final_qa_candidate.html';
 export const FINAL_QA_PREVIEW_URL =
   'https://ceyal.github.io/tg-limitless-preview/final-qa-candidate.html';
 
+export const ENDURANCE_STATUS =
+  'NOT_RUN_DEFERRED_UNTIL_ALL_TECH_AND_FINAL_LINK_ARE_COMPLETE_AND_EYAL_APPROVES';
+
+export const TESTER_SENDOFF_STATUS =
+  'NOT_INVITED — external tester sendoff deferred until tech closure + Eyal approval';
+
 export const WAIVED_GATES = {
   safariIosRealDevice: 'REQUIRES_EXTERNAL_TESTER_EVIDENCE',
   atScreenReader: 'REQUIRES_EXTERNAL_TESTER_EVIDENCE',
   localEnduranceOnly: 'LOCAL_HEADLESS_ONLY_NOT_DEVICE',
+  enduranceLongRun:
+    'NOT_RUN — no 30m/60m/120m endurance; final_qa_endurance.spec.js not executed this patch',
+  testerInvite: TESTER_SENDOFF_STATUS,
   classification: 'NOT_GREEN — Safari/iOS and AT not GREEN unless externally tested',
 };
 
@@ -62,8 +71,36 @@ const V2_REPORT_IDS = {
 };
 
 async function runPwaSwV2ScopeProof() {
+  let cacheKeys = [];
+  let staleFinalQaCaches = [];
+  let registrations = [];
+  if ('caches' in window) {
+    cacheKeys = await caches.keys();
+    staleFinalQaCaches = cacheKeys.filter(
+      (k) =>
+        k.startsWith('tg-top-tg-final-qa-candidate-cache-') &&
+        !k.includes('tg-top-tg-final-qa-candidate-v1.1'),
+    );
+  }
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    registrations = regs.map((r) => ({
+      scope: r.scope,
+      scriptURL: r.active?.scriptURL || r.installing?.scriptURL || null,
+      state: r.active?.state || r.installing?.state || 'none',
+    }));
+  }
+  const zombieRisk =
+    staleFinalQaCaches.length > 0 ||
+    registrations.some(
+      (r) =>
+        r.scriptURL &&
+        !r.scriptURL.includes('tg-top-tg-final-qa-candidate-sw') &&
+        !r.scriptURL.includes('tg-final-marathon-candidate-sw') &&
+        !r.scriptURL.includes('tg-integrated-technology-candidate-sw'),
+    );
   return {
-    schemaVersion: 'pwa_sw_hardening_v2_personal_rc_v1.0',
+    schemaVersion: 'pwa_sw_hardening_v2_personal_rc_v1.2',
     classification: 'CANDIDATE_SCOPE_PROOF',
     silentRegistrationDetected: false,
     serviceWorkerSupported: 'serviceWorker' in navigator,
@@ -71,16 +108,34 @@ async function runPwaSwV2ScopeProof() {
     finalQaSw: './tg-top-tg-final-qa-candidate-sw.js',
     scopeNote: 'Fetch handler only caches final QA candidate shell — not index.html',
     cacheVersion: 'tg-top-tg-final-qa-candidate-v1.1',
+    cacheKeysMatchingFinalQa: cacheKeys.filter((k) => k.includes('tg-top-tg-final-qa-candidate-cache')),
+    staleCacheV10Risk: staleFinalQaCaches,
+    staleCacheRemediation: 'Use Unregister Final QA SW + hard reload; v1.1 activate deletes older cache names',
+    registrations,
+    zombieSwRisk: zombieRisk,
     githubPagesCompatible: window.isSecureContext === true,
     productionPwaClaim: false,
-    ok: true,
+    ok: !zombieRisk || staleFinalQaCaches.length === 0,
     timestamp: new Date().toISOString(),
   };
 }
 
 async function runOpfsV2QuickCheck() {
   if (!navigator.storage?.getDirectory) {
-    return { ok: true, classification: 'UNSUPPORTED_GRACEFUL', available: false };
+    return { ok: true, classification: 'UNSUPPORTED_GRACEFUL', available: false, defaultOn: false };
+  }
+  let quota = null;
+  try {
+    if (navigator.storage?.estimate) {
+      const est = await navigator.storage.estimate();
+      quota = {
+        usage: est.usage,
+        quota: est.quota,
+        usageRatio: est.quota ? est.usage / est.quota : null,
+      };
+    }
+  } catch {
+    /* ignore */
   }
   const prefix = `tg_prc_opfs_v2_${Date.now()}`;
   try {
@@ -96,12 +151,38 @@ async function runOpfsV2QuickCheck() {
       ok: text.includes('probe'),
       classification: 'OPT_IN_HARNESS_OK',
       writeReadDelete: true,
-      corruptionRecovery: 'manual clear via Full cleanup',
+      corruptionRecovery: 'manual clear via Full cleanup — no auto-migrate of user data',
+      destructiveMigration: false,
+      nonDestructiveProof: 'probe file created and removed; no overwrite of tg_itg_opfs_ or marathon prefixes',
+      quotaEstimate: quota,
       defaultOn: false,
+      optInOnly: true,
     };
   } catch (e) {
-    return { ok: false, error: String(e), classification: 'YELLOW_TOOLING_LIMITATION' };
+    return { ok: false, error: String(e), classification: 'YELLOW_TOOLING_LIMITATION', quotaEstimate: quota };
   }
+}
+
+async function probeV2ModuleLoads() {
+  const modules = [
+    { lane: 'audioworkletParityV2', url: './src/tg-audioworklet-parity-v2-candidate.js' },
+    { lane: 'wavProductizationV2', url: './src/tg-wav-productization-v2-candidate.js' },
+    { lane: 'awProcessor', url: './src/tg-audioworklet-parity-v2-processor.js' },
+  ];
+  const results = [];
+  for (const m of modules) {
+    try {
+      const res = await fetch(m.url, { cache: 'no-store' });
+      results.push({ lane: m.lane, url: m.url, status: res.status, ok: res.ok });
+    } catch (e) {
+      results.push({ lane: m.lane, url: m.url, status: 0, ok: false, error: String(e) });
+    }
+  }
+  return {
+    allRequiredOk: results.every((r) => r.ok),
+    modules: results,
+    timestamp: new Date().toISOString(),
+  };
 }
 
 async function runVisualSpatialV2Probe() {
@@ -205,19 +286,32 @@ export function getFinalQaRollbackManifest() {
 export async function collectFinalQaDiagnostics(candidateSha) {
   const integrated = await collectIntegratedDiagnostics(candidateSha);
   const awV2 = collectParityV2Diagnostics();
+  let awModuleProbe = null;
+  try {
+    awModuleProbe = await (window.__TG_AUDIOWORKLET_PARITY_V2_CANDIDATE__?.probeProcessorModule?.() ??
+      Promise.resolve(null));
+  } catch {
+    awModuleProbe = { ok: false, classification: 'PROBE_ERROR' };
+  }
   let wavV2 = null;
   try {
     wavV2 = await runWavProductizationV2Harness({ durationSec: 0.25 });
   } catch {
     wavV2 = { ok: false, classification: 'HARNESS_ERROR' };
   }
+  const wavDiag =
+    window.__TG_WAV_PRODUCTIZATION_V2_CANDIDATE__?.collectWavV2Diagnostics?.() || null;
   const pwaV2 = await runPwaSwV2ScopeProof();
   const opfsV2 = await runOpfsV2QuickCheck();
   const vizV2 = await runVisualSpatialV2Probe();
+  const v2ModuleLoads = await probeV2ModuleLoads();
   return {
-    schemaVersion: 'top_tg_final_qa_candidate_diagnostics_v1.0',
+    schemaVersion: 'top_tg_final_qa_candidate_diagnostics_v1.1',
+    techClosurePatch: 'TG_NARROW_2027_TECH_CLOSURE_DECISION_PATCH',
     candidateVersion: FINAL_QA_VERSION,
     candidateSha: candidateSha || window.__TG_FINAL_QA_SHA__ || '(pending)',
+    enduranceStatus: ENDURANCE_STATUS,
+    testerSendoffStatus: TESTER_SENDOFF_STATUS,
     personalRcBaseSha: '2E4EA02C801E73964E7457EF928D928676484B878A8CB08E87F31D0D2CA69E1D',
     previewUrl: FINAL_QA_PREVIEW_URL,
     frozenLaneClassification: FROZEN_LANE_CLASSIFICATION,
@@ -229,9 +323,10 @@ export async function collectFinalQaDiagnostics(candidateSha) {
     legacyEngineDefault: true,
     webmExportDefault: true,
     integratedSubsystem: integrated,
+    v2ModuleLoadProbe: v2ModuleLoads,
     v2Lanes: {
-      audioworkletParityV2: { ...awV2, parityGapMatrix: PARITY_GAP_MATRIX },
-      wavProductizationV2: wavV2,
+      audioworkletParityV2: { ...awV2, processorModuleProbe: awModuleProbe, parityGapMatrix: PARITY_GAP_MATRIX },
+      wavProductizationV2: { harness: wavV2, diagnostics: wavDiag },
       pwaSwHardeningV2: pwaV2,
       opfsHardeningV2: opfsV2,
       visualSpatialV2: vizV2,
@@ -297,10 +392,21 @@ function bindPersonalRcV2Harnesses() {
   });
 }
 
+function augmentFinalQaTruthBanner() {
+  const banner = document.getElementById('tgPersonalRcWaiverBanner');
+  if (!banner || banner.dataset.tgNarrowTechClosureAugmented === '1') return;
+  banner.dataset.tgNarrowTechClosureAugmented = '1';
+  const note = document.createElement('p');
+  note.className = 'tg-prc-warn';
+  note.textContent = `Endurance: ${ENDURANCE_STATUS}. Testers: ${TESTER_SENDOFF_STATUS}. AW/WAV/OPFS/PWA lanes remain off-by-default / diagnostics-only.`;
+  banner.appendChild(note);
+}
+
 export function initTopTgFinalQaCandidate() {
   const root = document.getElementById('tgPersonalRcRoot');
   if (!root) return;
 
+  augmentFinalQaTruthBanner();
   organizePersonalRcHub();
   initIntegratedTechnologyCandidate();
   initAudioWorkletParityV2Panel();
