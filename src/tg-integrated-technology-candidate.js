@@ -88,6 +88,13 @@ function organizeIntegratedHub() {
   if (slots.aw && awPanel) slots.aw.appendChild(awPanel);
   const mega = document.getElementById('tgMegaTechCandidatePanel');
   if (mega) mega.hidden = true;
+  document.querySelectorAll('button[data-tg-scroll="tgMegaTechCandidatePanel"]').forEach((btn) => {
+    btn.setAttribute('data-tg-scroll', 'tgIntegratedTechHub');
+    btn.setAttribute(
+      'title',
+      'Mega Tech lanes consolidated under Integrated Technology hub (candidate-only)',
+    );
+  });
 }
 
 export async function collectLaneDefaultState() {
