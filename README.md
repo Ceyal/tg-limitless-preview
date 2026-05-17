@@ -15,11 +15,11 @@ It is not 2027/2033 achieved.
 
 ## Asset Audit
 
-- Status: `PREVIEW_ASSETS_PARTIAL_WITH_MISSING_REFERENCES`
+- Status: `PREVIEW_ASSETS_COMPLETE`
 - Primary page load (HTML + CSS + ES modules): **complete**
-- Optional lane SHA probes to other candidate HTML: **not included** (by design)
+- Optional lane SHA probe HTML (mega / WAV / AudioWorklet / marathon): **included** at repo root
 - Details: see `PREVIEW_ASSET_AUDIT.md`
-- GitHub Pages: **ready to push** for integrated candidate at `index.html`
+- GitHub Pages: **ready to push** — reference-complete preview package
 
 ## Truth Boundaries
 
