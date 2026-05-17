@@ -70,7 +70,7 @@ async function runPwaSwV2ScopeProof() {
     controllerOnLoad: !!navigator.serviceWorker?.controller,
     finalQaSw: './tg-top-tg-final-qa-candidate-sw.js',
     scopeNote: 'Fetch handler only caches final QA candidate shell — not index.html',
-    cacheVersion: 'tg-top-tg-final-qa-candidate-v1.0',
+    cacheVersion: 'tg-top-tg-final-qa-candidate-v1.1',
     githubPagesCompatible: window.isSecureContext === true,
     productionPwaClaim: false,
     ok: true,
@@ -137,7 +137,7 @@ export async function registerFinalQaSw() {
     return {
       ok: true,
       scope: reg.scope,
-      cacheVersion: 'tg-top-tg-final-qa-candidate-v1.0',
+      cacheVersion: 'tg-top-tg-final-qa-candidate-v1.1',
       scopeNote: 'Caches final QA shell only — active index.html not in precache list',
       state: reg.installing?.state || reg.active?.state,
     };
