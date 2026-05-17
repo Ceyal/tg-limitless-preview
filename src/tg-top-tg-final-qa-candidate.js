@@ -34,14 +34,30 @@ import {
   runWavProductizationV2Harness,
   runWavBlockerAttack,
 } from './tg-wav-productization-v2-candidate.js';
+import {
+  initEmodeSpectralCompareCandidate,
+  runEmodeBlockerAttack,
+  runOfflineEmodeSpectralCompare,
+} from './tg-emode-spectral-compare-candidate.js';
+import {
+  initWavGraphAuditCandidate,
+  runWavGraphBlockerAttack,
+} from './tg-wav-graph-audit-candidate.js';
 
 export const BLOCKER_ATTACK_STATUS = {
   audioworklet:
-    'PARTIALLY_REDUCED — bounded fundamental/noise/LFO/harmonic harness proofs; E-mode + analyser-export blocked',
-  wav: 'PARTIALLY_REDUCED — RIFF deep validate + memory model; ScriptProcessor product replacement blocked',
-  opfs: 'PARTIALLY_REDUCED — opt-in roundtrip + prefix inventory; product storage policy pending',
-  pwaSw: 'PARTIALLY_REDUCED — user-click only + stale v1.0 cache enumeration/cleanup path',
-  truthPanel: 'IMPROVED — blocker matrix in unified diagnostics',
+    'PARTIALLY_REDUCED — E-mode non-equivalence proven offline; live E pan asymmetry measurable; AW product-live blocked',
+  wav: 'PARTIALLY_REDUCED — live graph audit + disconnected AW tap; ScriptProcessor product replacement blocked',
+  opfs: 'PARTIALLY_REDUCED — Safari feature-detect only; product policy pending; NOT Safari GREEN',
+  pwaSw: 'PARTIALLY_REDUCED — user-click only + stale cache cleanup',
+  truthPanel: 'IMPROVED — high-impact blocker status in unified diagnostics',
+};
+
+export const HIGH_IMPACT_BLOCKER_STATUS = {
+  eModeVowelPanner: 'PARTIALLY_REDUCED — offline non-equivalence + optional live E asymmetry probe',
+  scriptProcessorVsAwTap: 'PARTIALLY_REDUCED — graph audit narrows risk; product replacement blocked',
+  opfsSafari: 'PARTIALLY_REDUCED — UA/feature matrix only; device proof missing',
+  analyserExportAwRoute: 'BLOCKED — live AB on playing graph not closed',
 };
 
 export const FINAL_QA_VERSION = '2027_top_tg_final_qa_candidate_v1.0';
@@ -244,6 +260,49 @@ export async function runRemainingBlockersAttackSummary() {
   };
 }
 
+export function probeSafariOpfsCapabilityMatrix() {
+  const ua = navigator.userAgent || '';
+  const isSafariUa = /safari/i.test(ua) && !/chrome|chromium|android/i.test(ua);
+  const isIosUa = /iphone|ipad|ipod/i.test(ua);
+  return {
+    schemaVersion: 'opfs_safari_capability_matrix_v1.0',
+    classification: 'FEATURE_DETECT_ONLY_NOT_DEVICE_PROOF',
+    safariGreenClaim: false,
+    userAgent: { isSafariUa, isIosUa },
+    opfs: {
+      getDirectory: !!navigator.storage?.getDirectory,
+      estimate: !!navigator.storage?.estimate,
+      persisted: !!navigator.storage?.persist,
+    },
+    limitationCopy:
+      'Safari/iOS OPFS behavior requires external real-device evidence — this probe is not a pass',
+    overall: 'PARTIALLY_REDUCED',
+    timestamp: new Date().toISOString(),
+  };
+}
+
+export async function runHighImpactBlockersPass(opts = {}) {
+  const eMode = await runEmodeBlockerAttack(opts);
+  const wavGraph = await runWavGraphBlockerAttack(opts);
+  const safariOpfs = probeSafariOpfsCapabilityMatrix();
+  const offlineEmodeOnly = await runOfflineEmodeSpectralCompare(opts);
+
+  return {
+    schemaVersion: 'high_impact_blockers_pass_v1.0',
+    patch: 'TG_2027_FINAL_HIGH_IMPACT_BLOCKERS_PASS',
+    enduranceStatus: ENDURANCE_STATUS,
+    testerSendoffStatus: TESTER_SENDOFF_STATUS,
+    highImpactBlockerStatus: HIGH_IMPACT_BLOCKER_STATUS,
+    eModeVowelPanner: eMode,
+    scriptProcessorVsAwTap: wavGraph,
+    opfsSafari: safariOpfs,
+    offlineEmodeFallback: offlineEmodeOnly,
+    finalQaGateReady: false,
+    anotherTechPassWorthwhile: true,
+    timestamp: new Date().toISOString(),
+  };
+}
+
 async function runOpfsV2QuickCheck() {
   if (!navigator.storage?.getDirectory) {
     return { ok: true, classification: 'UNSUPPORTED_GRACEFUL', available: false, defaultOn: false };
@@ -429,10 +488,15 @@ export async function collectFinalQaDiagnostics(candidateSha) {
   const opfsV2 = await runOpfsV2QuickCheck();
   const vizV2 = await runVisualSpatialV2Probe();
   const v2ModuleLoads = await probeV2ModuleLoads();
+  const safariOpfs = probeSafariOpfsCapabilityMatrix();
+  let lastHighImpact = window.__TG_HIGH_IMPACT_BLOCKERS_LAST__ || null;
+
   return {
-    schemaVersion: 'top_tg_final_qa_candidate_diagnostics_v1.2',
-    techClosurePatch: 'TG_2027_REMAINING_BLOCKERS_ATTACK',
+    schemaVersion: 'top_tg_final_qa_candidate_diagnostics_v1.3',
+    techClosurePatch: 'TG_2027_FINAL_HIGH_IMPACT_BLOCKERS_PASS',
     blockerAttackStatus: BLOCKER_ATTACK_STATUS,
+    highImpactBlockerStatus: HIGH_IMPACT_BLOCKER_STATUS,
+    lastHighImpactPass: lastHighImpact,
     candidateVersion: FINAL_QA_VERSION,
     candidateSha: candidateSha || window.__TG_FINAL_QA_SHA__ || '(pending)',
     enduranceStatus: ENDURANCE_STATUS,
@@ -453,8 +517,14 @@ export async function collectFinalQaDiagnostics(candidateSha) {
       audioworkletParityV2: { ...awV2, processorModuleProbe: awModuleProbe, parityGapMatrix: PARITY_GAP_MATRIX },
       wavProductizationV2: { harness: wavV2, diagnostics: wavDiag },
       pwaSwHardeningV2: pwaV2,
-      opfsHardeningV2: opfsV2,
+      opfsHardeningV2: { ...opfsV2, safariCapabilityMatrix: safariOpfs },
       visualSpatialV2: vizV2,
+      eModeSpectralCompare: window.__TG_EMODE_COMPARE_LAST__ || {
+        note: 'Run high-impact pass or E-mode harness for proof JSON',
+      },
+      wavGraphAudit: window.__TG_WAV_GRAPH_AUDIT_LAST__ || {
+        note: 'Run WAV graph audit while playing for live baseline',
+      },
     },
     rollback: getFinalQaRollbackManifest(),
     timestamp: new Date().toISOString(),
@@ -522,6 +592,13 @@ function bindPersonalRcV2Harnesses() {
     window.__TG_BLOCKER_ATTACK_LAST__ = r;
     renderFinalQaDiagnostics();
   });
+  document.getElementById('tgPrcRunHighImpactBlockers')?.addEventListener('click', async () => {
+    const r = await runHighImpactBlockersPass();
+    window.__TG_HIGH_IMPACT_BLOCKERS_LAST__ = r;
+    const pre = document.getElementById('tgPrcUnifiedDiagOut');
+    if (pre) pre.textContent = JSON.stringify(r, null, 2);
+    renderFinalQaDiagnostics();
+  });
   document.getElementById('tgPrcClearStaleCaches')?.addEventListener('click', async () => {
     const r = await clearStaleFinalQaCachesUserClick();
     const out = document.getElementById('tgPrcPwaReport');
@@ -540,13 +617,21 @@ function augmentFinalQaTruthBanner() {
     note.textContent = `Endurance: ${ENDURANCE_STATUS}. Testers: ${TESTER_SENDOFF_STATUS}. AW/WAV/OPFS/PWA lanes remain off-by-default / diagnostics-only.`;
     banner.appendChild(note);
   }
-  if (banner.dataset.tgBlockerAttackAugmented === '1') return;
-  banner.dataset.tgBlockerAttackAugmented = '1';
-  const blockers = document.createElement('p');
-  blockers.className = 'tg-prc-warn';
-  blockers.textContent =
-    '2027 blockers: AW/WAV/OPFS/PWA partially reduced in harness only — NOT product-live, NOT GREEN, NOT 2027 achieved.';
-  banner.appendChild(blockers);
+  if (banner.dataset.tgBlockerAttackAugmented !== '1') {
+    banner.dataset.tgBlockerAttackAugmented = '1';
+    const blockers = document.createElement('p');
+    blockers.className = 'tg-prc-warn';
+    blockers.textContent =
+      '2027 blockers: AW/WAV/OPFS/PWA partially reduced in harness only — NOT product-live, NOT GREEN, NOT 2027 achieved.';
+    banner.appendChild(blockers);
+  }
+  if (banner.dataset.tgHighImpactAugmented === '1') return;
+  banner.dataset.tgHighImpactAugmented = '1';
+  const hi = document.createElement('p');
+  hi.className = 'tg-prc-warn';
+  hi.textContent =
+    'High-impact: E-mode non-equivalence provable offline; ScriptProcessor product replacement still blocked; Safari OPFS feature-detect only.';
+  banner.appendChild(hi);
 }
 
 function injectBlockerAttackControls() {
@@ -555,7 +640,13 @@ function injectBlockerAttackControls() {
   anchor.insertAdjacentHTML(
     'afterend',
     '<button type="button" id="tgPrcRunAllBlockerAttacks">Run all 2027 blocker attacks</button>' +
-      '<button type="button" id="tgPrcClearStaleCaches">Clear stale Final QA caches (user-click)</button>',
+      '<button type="button" id="tgPrcRunHighImpactBlockers">Run high-impact blockers pass</button>' +
+      '<button type="button" id="tgPrcClearStaleCaches">Clear stale Final QA caches (user-click)</button>' +
+      '<button type="button" id="tgEmodeRunOffline">E-mode offline spectral compare</button>' +
+      '<button type="button" id="tgEmodeRunLive">E-mode live spectral compare (Play first)</button>' +
+      '<button type="button" id="tgWavGraphAuditRun">WAV graph audit (Play first)</button>' +
+      '<pre id="tgEmodeReport" style="font-size:9px;max-height:80px;overflow:auto">E-mode…</pre>' +
+      '<pre id="tgWavGraphAuditReport" style="font-size:9px;max-height:80px;overflow:auto">WAV graph…</pre>',
   );
 }
 
@@ -569,6 +660,8 @@ export function initTopTgFinalQaCandidate() {
   initIntegratedTechnologyCandidate();
   initAudioWorkletParityV2Panel();
   initWavProductizationV2Panel();
+  initEmodeSpectralCompareCandidate();
+  initWavGraphAuditCandidate();
   bindPersonalRcV2Harnesses();
 
   document.getElementById('tgPrcRefreshDiag')?.addEventListener('click', () => renderFinalQaDiagnostics());
@@ -660,7 +753,10 @@ export function initTopTgFinalQaCandidate() {
     unregisterFinalQaSw,
     clearStaleFinalQaCachesUserClick,
     runRemainingBlockersAttackSummary,
+    runHighImpactBlockersPass,
+    probeSafariOpfsCapabilityMatrix,
     BLOCKER_ATTACK_STATUS,
+    HIGH_IMPACT_BLOCKER_STATUS,
     getFinalQaRollbackManifest,
     FOUNDATION_SHAS,
   };
