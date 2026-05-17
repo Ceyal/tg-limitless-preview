@@ -1,0 +1,28 @@
+{
+  "verdict": "YELLOW_LIMITLESS_2027_INTEGRATED_TECHNOLOGY_CANDIDATE_PARTIAL_READY_FOR_GROK",
+  "candidatePath": "limitless_webapp/index_2027_integrated_technology_candidate.html",
+  "candidateSha256": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+  "marathonFoundationSha256": "38859AC344AED5BFCB49DF102472D7CE29E11EFDDF22D5BD5D2FEE46CE8E3FED",
+  "version": "2027_integrated_technology_candidate_v1.1",
+  "playwright": {
+    "chromium": { "passed": 3, "failed": 0 },
+    "firefox": { "passed": 3, "failed": 0 },
+    "msedge": { "passed": 3, "failed": 0 }
+  },
+  "reloadDefaultOffProof": "PASS_ALL_BROWSERS",
+  "staticGrep": "PASS",
+  "lanes": {
+    "allOffByDefault": "PASS",
+    "legacyDefault": "PASS",
+    "webmDefault": "PASS",
+    "wavLiveTap": "PRESERVED",
+    "audioworkletPartial": "PASS_OFF_BY_DEFAULT",
+    "opfs": "GREEN_OPFS_OPT_IN_CANDIDATE_BROWSER",
+    "pwaSw": "YELLOW_TOOLING_LIMITATION",
+    "webglWebgpu": "PASS_WITH_FALLBACK",
+    "spatialHrtf": "GREEN_SPATIAL_HRTF_CANDIDATE_BROWSER"
+  },
+  "p0": [],
+  "p1": [],
+  "timestamp": "2026-05-17T14:22:28Z"
+}

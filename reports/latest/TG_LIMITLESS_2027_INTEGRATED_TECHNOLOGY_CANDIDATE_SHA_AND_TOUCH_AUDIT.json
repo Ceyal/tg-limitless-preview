@@ -1,0 +1,27 @@
+{
+  "auditVersion": "2027_integrated_technology_candidate_v1.1",
+  "verdict": "YELLOW_LIMITLESS_2027_INTEGRATED_TECHNOLOGY_CANDIDATE_PARTIAL_READY_FOR_GROK",
+  "protected": {
+    "index.html": "07262E21170F5208A866E3052CF38C025ECCDD4F39E5091AFA4E49A72379D42C",
+    "personalMaster": "8DDD0F475DC234CDC429E7F8E88FABCBDEB5BDB98963B0D6A1C732F6A8D9A49B",
+    "reference": "8DDD0F475DC234CDC429E7F8E88FABCBDEB5BDB98963B0D6A1C732F6A8D9A49B",
+    "megaFoundation": "7AC5389A4CCA12436C1A2A2189F3469DD927BC401FDA1EFBC357631FD936B125",
+    "wavFoundation": "982AC64307B3DAB2A3E4E7D0173743F16FAECD91C23E44379BFAB171F3240ACF",
+    "audioworkletPartial": "9BCB3B81EBECB4FE12613002C6B59685A761846190F8B87823432699943EEF33",
+    "marathonFoundation": "38859AC344AED5BFCB49DF102472D7CE29E11EFDDF22D5BD5D2FEE46CE8E3FED"
+  },
+  "created": {
+    "integratedCandidate": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+    "marathonPartialAcceptedFreeze": "38859AC344AED5BFCB49DF102472D7CE29E11EFDDF22D5BD5D2FEE46CE8E3FED"
+  },
+  "touchedNewFiles": [
+    "src/tg-integrated-technology-candidate.js",
+    "tg-integrated-technology-candidate-sw.js",
+    "tg-integrated-technology-candidate.webmanifest",
+    "tests/integrated_technology_candidate.spec.js",
+    "harnesses/integrated_technology_candidate/harness.html",
+    "index_2027_final_technology_marathon_candidate_partial_accepted.html"
+  ],
+  "activeProductMutated": false,
+  "foundationsMutated": false
+}

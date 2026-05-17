@@ -1,0 +1,38 @@
+{
+  "project": "TG Limitless Preview",
+  "status": "YELLOW_LIMITLESS_2027_INTEGRATED_TECHNOLOGY_CANDIDATE_PARTIAL_ACCEPTED",
+  "previewType": "isolated_candidate_preview",
+  "generatedAt": "2026-05-17T17:49:52",
+  "sourceCandidate": "limitless_webapp/index_2027_integrated_technology_candidate.html",
+  "candidateSha256": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+  "activeProductSha256": "07262E21170F5208A866E3052CF38C025ECCDD4F39E5091AFA4E49A72379D42C",
+  "personalMasterReferenceSha256": "8DDD0F475DC234CDC429E7F8E88FABCBDEB5BDB98963B0D6A1C732F6A8D9A49B",
+  "allowedClaims": [
+    "Integrated Technology Candidate v1.1 preview",
+    "all major technology lanes unified in isolated candidate",
+    "advanced lanes off-by-default or opt-in only",
+    "legacy engine and WebM export remain default",
+    "active product and accepted foundations untouched"
+  ],
+  "forbiddenClaims": [
+    "production ready",
+    "perfect",
+    "2027 achieved",
+    "2033 achieved",
+    "Safari/iOS GREEN",
+    "AT GREEN",
+    "product WAV GREEN",
+    "AudioWorklet product-live",
+    "OPFS default-on",
+    "silent Service Worker",
+    "medical/healing/therapy/entrainment/efficacy claims"
+  ],
+  "remainingGaps": {
+    "safariIos": "REQUIRES_DEVICE",
+    "realMobile": "REQUIRES_DEVICE",
+    "assistiveTechnology": "REQUIRES_MANUAL",
+    "pwaRegisterUnregister": "TOOLING_LIMITED",
+    "audioWorklet": "PARTIAL_ROUTE_ONLY",
+    "productionPromotion": "NOT_APPROVED"
+  }
+}
