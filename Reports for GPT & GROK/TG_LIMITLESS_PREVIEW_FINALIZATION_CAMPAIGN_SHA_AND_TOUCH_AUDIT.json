@@ -1,0 +1,62 @@
+{
+  "campaign": "TG_LIMITLESS_PREVIEW_FINALIZATION_CAMPAIGN_v1.1",
+  "auditedAt": "2026-05-17T20:00:00Z",
+  "scope": "tg-limitless-preview-repo only",
+  "protectedOutsideRepo": {
+    "activeProduct": {
+      "path": "limitless_webapp/index.html",
+      "expectedSha256": "07262E21170F5208A866E3052CF38C025ECCDD4F39E5091AFA4E49A72379D42C",
+      "verifiedSha256": "07262E21170F5208A866E3052CF38C025ECCDD4F39E5091AFA4E49A72379D42C",
+      "touched": false
+    },
+    "personalMasterReference": {
+      "path": "tone_generator_v12_6_PERSONAL_MASTER.html",
+      "expectedSha256": "8DDD0F475DC234CDC429E7F8E88FABCBDEB5BDB98963B0D6A1C732F6A8D9A49B",
+      "verifiedSha256": "8DDD0F475DC234CDC429E7F8E88FABCBDEB5BDB98963B0D6A1C732F6A8D9A49B",
+      "touched": false
+    },
+    "acceptedFoundations": {
+      "touched": false,
+      "hashes": {
+        "mega": "7AC5389A4CCA12436C1A2A2189F3469DD927BC401FDA1EFBC357631FD936B125",
+        "wav": "982AC64307B3DAB2A3E4E7D0173743F16FAECD91C23E44379BFAB171F3240ACF",
+        "audioworkletPartial": "9BCB3B81EBECB4FE12613002C6B59685A761846190F8B87823432699943EEF33",
+        "finalTechnologyMarathon": "38859AC344AED5BFCB49DF102472D7CE29E11EFDDF22D5BD5D2FEE46CE8E3FED"
+      }
+    }
+  },
+  "previewRepo": {
+    "rootIndex": {
+      "path": "index.html",
+      "role": "clean landing (changed from integrated candidate root)",
+      "sha256": "74F4AFB2E1D86FEA189532D20BB77BC055D33061AB5A450361ECD3F62D91108B"
+    },
+    "integratedCandidateProbe": {
+      "path": "index_2027_integrated_technology_candidate.html",
+      "expectedSha256": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+      "verifiedSha256": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD"
+    },
+    "finalFoundation": {
+      "path": "foundations/index_2027_integrated_technology_candidate_FINAL_FOUNDATION.html",
+      "expectedSha256": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+      "verifiedSha256": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+      "finalFoundationFrozen": true
+    },
+    "techDiagnostics": {
+      "path": "tech-diagnostics.html",
+      "sha256": "E5FF8C2B1731BE52BB76B6E81C98AED26F5BEA9DFF6B42DEB8CB0C654E00B398",
+      "note": "Integrated candidate + preview nav bar; full hub preserved"
+    },
+    "dailyDriver": {
+      "path": "daily-driver.html",
+      "note": "Integrated candidate base + preview-only collapse CSS/JS; engine bytes unchanged"
+    },
+    "previewOnlyAssets": [
+      "preview/preview-daily-driver.js",
+      "preview/preview-daily-driver.css"
+    ]
+  },
+  "touchAuditClear": true,
+  "p0Triggered": false,
+  "p1Triggered": false
+}

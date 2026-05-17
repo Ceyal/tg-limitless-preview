@@ -1,0 +1,50 @@
+{
+  "campaign": "TG_LIMITLESS_PREVIEW_FINALIZATION_CAMPAIGN_v1.1",
+  "generatedAt": "2026-05-17T20:00:00Z",
+  "commitSha": "87210cb43cb589d7886e3cb16dfd90e8deee4058",
+  "verdictToken": "PREVIEW_FINALIZATION_PARTIAL_TOOLING_LIMITED",
+  "liveUrls": {
+    "landing": "https://ceyal.github.io/tg-limitless-preview/",
+    "dailyDriver": "https://ceyal.github.io/tg-limitless-preview/daily-driver.html",
+    "techDiagnostics": "https://ceyal.github.io/tg-limitless-preview/tech-diagnostics.html"
+  },
+  "localQa": {
+    "claims": { "ok": true, "forbiddenHits": 0 },
+    "links": { "ok": true, "checked": 27, "missing": 0 },
+    "playwrightLocalPreview": { "ok": true, "passed": 5, "failed": 0 }
+  },
+  "liveQa": {
+    "httpVerification": { "ok": true, "status": 200, "landingHasDailyDriverLink": true },
+    "playwrightLivePages": {
+      "ok": false,
+      "passed": 2,
+      "failed": 3,
+      "classification": "YELLOW_TOOLING_LIMITATION",
+      "note": "Playwright received GitHub Pages 404 shell; manual HTTP/WebFetch succeeded"
+    }
+  },
+  "defaultOffProof": {
+    "opfsMega": false,
+    "opfsItg": false,
+    "pwaItg": false,
+    "wavMega": false,
+    "workletMega": false,
+    "vizMega": false,
+    "spatialMega": false,
+    "wavLive": false,
+    "awArm": false,
+    "serviceWorkerController": false,
+    "reloadPreservesOff": true,
+    "verifiedOn": "local-preview daily-driver"
+  },
+  "screenshots": [
+    "qa-artifacts/screenshots/local-preview-landing.png",
+    "qa-artifacts/screenshots/local-preview-daily-driver.png",
+    "qa-artifacts/screenshots/local-preview-tech-diagnostics.png"
+  ],
+  "forbiddenClaimsScan": { "ok": true },
+  "githubActions": {
+    "workflow": ".github/workflows/preview-qa.yml",
+    "secretsRequired": false
+  }
+}

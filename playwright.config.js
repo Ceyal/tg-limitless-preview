@@ -1,7 +1,11 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
 
-const LIVE_BASE = process.env.TG_PREVIEW_LIVE_URL || 'https://ceyal.github.io/tg-limitless-preview';
+const LIVE_BASE = (
+  process.env.TG_PREVIEW_LIVE_URL || 'https://ceyal.github.io/tg-limitless-preview'
+).replace(/\/?$/, '/');
+
+const livePagesOnly = process.argv.some((a) => String(a).includes('live-pages'));
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -32,10 +36,12 @@ module.exports = defineConfig({
       },
     },
   ],
-  webServer: {
-    command: 'npx --yes http-server . -p 4173 -c-1',
-    url: 'http://127.0.0.1:4173/index.html',
-    reuseExistingServer: true,
-    timeout: 60000,
-  },
+  webServer: livePagesOnly
+    ? undefined
+    : {
+        command: 'npx --yes http-server . -p 4173 -c-1',
+        url: 'http://127.0.0.1:4173/index.html',
+        reuseExistingServer: true,
+        timeout: 60000,
+      },
 });

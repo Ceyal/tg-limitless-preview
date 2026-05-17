@@ -11,7 +11,8 @@ GitHub Pages preview for the TG Limitless Integrated Technology Candidate — **
 | `/` | Clean landing — choose daily driver or diagnostics hub |
 | `/daily-driver.html` | Manual QA entry — studio first, diagnostics collapsed |
 | `/tech-diagnostics.html` | Full integrated technology / lane diagnostics |
-| `/index_2027_integrated_technology_candidate.html` | SHA probe alias (same bytes as diagnostics hub) |
+| `/index_2027_integrated_technology_candidate.html` | SHA probe alias (same bytes as frozen foundation) |
+| `foundations/index_2027_integrated_technology_candidate_FINAL_FOUNDATION.html` | Frozen integrated candidate (do not mutate) |
 
 ## Current candidate
 
@@ -43,6 +44,10 @@ CI: `.github/workflows/preview-qa.yml` (no secrets)
 ## Promotion decision
 
 - `TG_LIMITLESS_2027_PROMOTION_DECISION_PACKET.md` — decision support only, not a promotion
+
+## Campaign review (Grok/GPT)
+
+- `Reports for GPT & GROK/TG_LIMITLESS_PREVIEW_FINALIZATION_CAMPAIGN_*` — finalization v1.1 audit bundle
 
 ## Truth boundaries
 

@@ -35,6 +35,11 @@
   },
   "sourceCandidate": "limitless_webapp/index_2027_integrated_technology_candidate.html",
   "candidateSha256": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+  "finalFoundationFrozen": true,
+  "finalFoundationPath": "foundations/index_2027_integrated_technology_candidate_FINAL_FOUNDATION.html",
+  "finalFoundationSha": "34C3CE6F78514DD329409D1BC8BC33F0431B1B8FC92D937D06987793E8F26FCD",
+  "finalFoundationFrozenAt": "2026-05-17T20:00:00Z",
+  "campaign": "TG_LIMITLESS_PREVIEW_FINALIZATION_CAMPAIGN_v1.1",
   "activeProductSha256": "07262E21170F5208A866E3052CF38C025ECCDD4F39E5091AFA4E49A72379D42C",
   "personalMasterReferenceSha256": "8DDD0F475DC234CDC429E7F8E88FABCBDEB5BDB98963B0D6A1C732F6A8D9A49B",
   "allowedClaims": [
